@@ -14,26 +14,26 @@
     <script>
         async function init() {
             const data = await d3.csv("us_statewise_covid_data.csv");
-            console.log(data);
+            console.log(data.total_adult_patients_hospitalized_confirmed_and_suspected_covid, data.deaths_covid, data.state);
 
             var xs = d3.scaleLog().domain([0, 10000]).range([0, 400])
             var ys = d3.scaleLog().domain([0, 100]).range([400, 0])
 
-            d3.select("svg")
-                .append("g")
-                    .attr("transform", "translate("+50+","+50+")")
-                .selectAll("circle")
-                .data(data)
-                .enter()
-                .append("circle")
-                    .attr("cx", function(d) { return xs(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
-                    .attr("cy", function(d) { return ys(d.deaths_covid); })
-                    .attr("r", "4")
+            // d3.select("svg")
+            //     .append("g")
+            //         .attr("transform", "translate("+50+","+50+")")
+            //     .selectAll("circle")
+            //     .data(data)
+            //     .enter()
+            //     .append("circle")
+            //         .attr("cx", function(d) { return xs(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
+            //         .attr("cy", function(d) { return ys(d.deaths_covid); })
+            //         .attr("r", "4")
 
-            d3.select("svg")
-                .append("g")
-                    .attr("transform", "translate("+50+","+50+")")
-                .call(d3.axisLeft(ys))
+            // d3.select("svg")
+            //     .append("g")
+            //         .attr("transform", "translate("+50+","+50+")")
+            //     .call(d3.axisLeft(ys))
         }
     </script>
 </body>
