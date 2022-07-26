@@ -11,6 +11,8 @@
 <body onload="init()">
     <h1>Narrative Visualization</h1>
     <p>Under construction ...</p>
+    <div id="navigation"></div>
+    <p id="space1"></div>
     <label for="states">Select a state:</label>
     <!-- <select name="states" id="states">
         <option value="AL">Alabama</option>
@@ -128,14 +130,67 @@
                 [53, "WY", "Wyoming"]
             ]
 
+        var buttonList = ["< Prev", "1", "2", "3", "Next >"];
+
+        var width = 1200, height = 600;
+        var margin = 100;
+
+        var svg = d3.select("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    // .append("g")
+                    //     // .attr("transform", "translate("+50+","+50+")")
+                    //     .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+        
+
+        function drawTitle(selectedState, filterAdultOrPediatric) {
+            svg.append("g")
+                // .data(stateList)
+                .append("text")
+                .attr("id", "chartTitle")
+                .attr("x", (width/2 - margin))
+                .attr("y", (margin/2))
+                .style("font-size", "24px")
+                .style("text-anchor", "center")
+                .style("fill", "steelblue")
+                .text(function() { 
+                                        var stateName = ""; 
+                                        for (var row of stateList) {
+                                            if (row[1] === selectedState) {
+                                                stateName = row[2];
+                                                break;
+                                            }
+                                        } 
+                                        
+                                        return stateName + " Records for " + filterAdultOrPediatric + " Patients";
+                                    })
+
+        }
+
+        function drawNavigation() {
+            d3.select("#navigation")
+                .selectAll("button")
+                .data(buttonList)
+                .enter()
+                .append("button")
+                .text(function(d) { return d; })
+        }
+
         async function init() {
 
             var selectedState = "CA" //stateList[0][1];
             var selectedSlideNum = "1";
             var filterAdultOrPediatric = "Adult";
 
-            // ============= Draw the Slide Navigation Buttons =============
 
+            // ============= Draw the Slide Navigation Buttons =============
+            // var button = d3.selectAll("button")
+            //                     .data(buttonList)
+            //                     .enter()
+            //                     .append("button")
+            //                     .text(function(d) { return d; })
+            
+            drawNavigation()
 
             // ============== SCENE 1 - ADULTs =====================
             
@@ -156,17 +211,7 @@
             const data = await d3.csv("us_statewise_covid_data_cleaned.csv");
             // const data = await d3.csv('https://flunky.github.io/cars2017.csv');
             
-            var width = 1200, height = 600;
-            var margin = 100;
-
-            var svg = d3.select("svg")
-                        .attr("width", width)
-                        .attr("height", height)
-                        // .append("g")
-                        //     // .attr("transform", "translate("+50+","+50+")")
-                        //     .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
             
-
             //  ======== Draw the x axis ======== 
             var parseTime = d3.timeParse("%Y/%m/%d")
             // var dates = data.map(function(d) { return parseTime(d.date); })
@@ -214,28 +259,30 @@
             function drawLineChart(selectedState) {
                 var filteredData = data.filter(function(d) { return d.state === selectedState; })
                 
+                drawTitle(selectedState, filterAdultOrPediatric)
+                
                 if (filterAdultOrPediatric === "Adult") {
                     
-                    svg.append("g")
-                        // .data(stateList)
-                        .append("text")
-                        .attr("id", "chartTitle")
-                        .attr("x", (width/2))
-                        .attr("y", (margin/2))
-                        .style("font-size", "24px")
-                        .style("text-anchor", "center")
-                        .style("fill", "steelblue")
-                        .text(function() { 
-                                                var stateName = ""; 
-                                                for (var row of stateList) {
-                                                    if (row[1] === selectedState) {
-                                                        stateName = row[2];
-                                                        break;
-                                                    }
-                                                } 
+                    // svg.append("g")
+                    //     // .data(stateList)
+                    //     .append("text")
+                    //     .attr("id", "chartTitle")
+                    //     .attr("x", (width/2))
+                    //     .attr("y", (margin/2))
+                    //     .style("font-size", "24px")
+                    //     .style("text-anchor", "center")
+                    //     .style("fill", "steelblue")
+                    //     .text(function() { 
+                    //                             var stateName = ""; 
+                    //                             for (var row of stateList) {
+                    //                                 if (row[1] === selectedState) {
+                    //                                     stateName = row[2];
+                    //                                     break;
+                    //                                 }
+                    //                             } 
                                                 
-                                                return stateName + " Records for " + filterAdultOrPediatric + " Patients";
-                                            })
+                    //                             return stateName + " Records for " + filterAdultOrPediatric + " Patients";
+                    //                         })
 
                         
                     svg.append("g")
@@ -269,25 +316,27 @@
                 d3.select("#chartTitle")                    
                     .remove()
                 
-                svg.append("g")
-                    // .data(stateList)
-                    .append("text")
-                    .attr("id", "chartTitle")
-                    .attr("x", (width/2))
-                    .attr("y", (margin/2))
-                    .style("font-size", "24px")
-                    .style("text-anchor", "center")
-                    .style("fill", "steelblue")
-                    .text(function() { 
-                                            var stateName = ""; 
-                                            for (var row of stateList) {
-                                                if (row[1] === selectedState) {
-                                                    stateName = row[2];
-                                                    break;
-                                                }
-                                            }                                            
-                                            return stateName + " Records for " + filterAdultOrPediatric + " Patients";
-                                        })
+                // svg.append("g")
+                //     // .data(stateList)
+                //     .append("text")
+                //     .attr("id", "chartTitle")
+                //     .attr("x", (width/2))
+                //     .attr("y", (margin/2))
+                //     .style("font-size", "24px")
+                //     .style("text-anchor", "center")
+                //     .style("fill", "steelblue")
+                //     .text(function() { 
+                //                             var stateName = ""; 
+                //                             for (var row of stateList) {
+                //                                 if (row[1] === selectedState) {
+                //                                     stateName = row[2];
+                //                                     break;
+                //                                 }
+                //                             }                                            
+                //                             return stateName + " Records for " + filterAdultOrPediatric + " Patients";
+                //                         })
+
+                drawTitle(selectedState, filterAdultOrPediatric)
 
                 if (filterAdultOrPediatric === "Adult") {                
                     d3.select("#hospAdultsAll")
