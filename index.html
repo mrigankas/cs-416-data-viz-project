@@ -71,80 +71,6 @@
     <!-- <svg width="800" height="800"></svg> -->
     <svg></svg>
     <script>
-        function selectState() {
-            var selectedState = "CA"
-            var stateList = [
-                [1, "AL", "Alabama"],
-                [2, "AK", "Alaska"],
-                [3, "AZ", "Arizona"],
-                [4, "AR", "Arkansas"],
-                [5, "CA", "California"],
-                [6, "CO", "Colorado"],
-                [7, "CT", "Connecticut"],
-                [8, "DE", "Delaware"],
-                [9, "DC", "District of Columbia"],
-                [10, "FL", "Florida"],
-                [11, "GA", "Georgia"],
-                [12, "HI", "Hawaii"],
-                [13, "ID", "Idaho"],
-                [14, "IL", "Illinois"],
-                [15, "IN", "Indiana"],
-                [16, "IA", "Iowa"],
-                [17, "KS", "Kansas"],
-                [18, "KY", "Kentucky"],
-                [19, "LA", "Louisiana"],
-                [20, "ME", "Maine"],
-                [21, "MD", "Maryland"],
-                [22, "MA", "Massachusetts"],
-                [23, "MI", "Michigan"],
-                [24, "MN", "Minnesota"],
-                [25, "MS", "Mississippi"],
-                [26, "MO", "Missouri"],
-                [27, "MT", "Montana"],
-                [28, "NE", "Nebraska"],
-                [29, "NV", "Nevada"],
-                [30, "NH", "New Hampshire"],
-                [31, "NJ", "New Jersey"],
-                [32, "NM", "New Mexico"],
-                [33, "NY", "New York"],
-                [34, "NC", "North Carolina"],
-                [35, "ND", "North Dakota"],
-                [36, "OH", "Ohio"],
-                [37, "OK", "Oklahoma"],
-                [38, "OR", "Oregon"],
-                [39, "PA", "Pennsylvania"],
-                [40, "PR", "Puerto Rico"],
-                [41, "RI", "Rhode Island"],
-                [42, "SC", "South Carolina"],
-                [43, "SD", "South Dakota"],
-                [44, "TN", "Tennessee"],
-                [45, "TX", "Texas"],
-                [46, "UT", "Utah"],
-                [47, "VT", "Vermont"],
-                [48, "VA", "Virginia"],
-                [49, "VI", "Virgin Islands"],
-                [50, "WA", "Washington"],
-                [51, "WV", "West Virginia"],
-                [52, "WI", "Wisconsin"],
-                [53, "WY", "Wyoming"]
-            ]
-            var dropDown = d3.select("select")
-                            .attr("id", "states")
-            
-            var options = dropDown.selectAll("option")
-                                    .data(stateList)
-                                    .enter()
-                                    .append("option")
-                                    .text(function(d) { return d[2]; })
-                                    .attr("value", function(d) { return d[1]; })
-                                    
-            options.property("selected", function(d) { return d[1]; }) //=== selectedState; })
-        }
-
-        // var filterState = "NY";
-        // filterState = selectState();
-        // alert("filterState" + filterState);
-
         
         async function init() {
 
@@ -204,7 +130,7 @@
                 [53, "WY", "Wyoming"]
             ]
 
-            var filterState = "NY";
+            var selectedState = stateList[0][1];
             var filterSlideNum = "1";
             var filterAdultOrPediatric = "Adult";
 
@@ -224,7 +150,7 @@
             // console.log(data)
             // console.log(data[0].total_adult_patients_hospitalized_confirmed_and_suspected_covid, data[0].deaths_covid, data[0].state);
 
-            var width = 1200, height = 700;
+            var width = 1200, height = 600;
             var margin = 100;
 
             var svg = d3.select("svg")
@@ -255,6 +181,9 @@
             var yMax = 5000;
             if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
+                // console.log(hospAdults)
+                // var maxHospAdults = d3.max(data, function(d) { return +d.total_adult_patients_hospitalized_confirmed_and_suspected_covid})
+                // console.log(maxHospAdults)
                 var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
                 yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
             }
@@ -284,16 +213,67 @@
                 .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_covid)); })
 
             
-            function drawLineChart(filteredData) {
+            function drawLineChart(selectedState) {
+                var filteredData = data.filter(function(d) { return d.state === selectedState; })
+                
                 if (filterAdultOrPediatric === "Adult") {
                     // yMax = d3.max(parseInt(data.total_adult_patients_hospitalized_confirmed_and_suspected_covid), 
                     //                 parseInt(data.total_adult_patients_hospitalized_confirmed_covid));
                     // console.log('yMax' + yMax)
 
+                    // svg.append("g")
+                    //         // .attr("transform", "translate("+ (width - margin/2 - 200) +","+ (margin/2 + 25) +")")
+                    //     .append("rect")
+                    //     .attr("x", (width - margin/2 - 225))
+                    //     .attr("y", (margin/2 + 25))
+                    //     .attr("width", 200)
+                    //     .attr("height", 100)
+                    //     .attr("fill", "none")
+                    //     .attr("stroke", "steelblue")
+                    //     .attr("stroke-width", 2)
+
+                    // svg.append("g")
+                    //     .append("text")
+                    //     .attr("x", (width - margin/2 - 200))
+                    //     .attr("y", margin)
+                    //     .style("font-size", "22px")
+                    //     .style("color", "steelblue")
+                    //     .text(filterAdultOrPediatric)
+
+                    // svg.append("g")
+                    //     .data(stateList)
+                    //     .append("text")
+                    //     .attr("x", (width - margin/2 - 200))
+                    //     .attr("y", (margin + 50))
+                    //     .style("font-size", "22px")
+                    //     .style("color", "steelblue")
+                    //     .text(function(d) { if (d[1] === selectedState) return d[2]; })
+
+                    svg.append("g")
+                        .data(stateList)
+                        .append("text")
+                        .attr("id", "chartTitle")
+                        .attr("x", (width/2))
+                        .attr("y", (margin/2))
+                        .style("font-size", "24px")
+                        .style("text-anchor", "center")
+                        .style("fill", "steelblue")
+                        .text(function(d) { 
+                                                var stateName = ""; 
+                                                for (var row of stateList) {
+                                                    if (row[1] === selectedState) {
+                                                        stateName = row[2];
+                                                        break;
+                                                    }
+                                                } 
+                                                //(d[1] === selectedState) ? d[2]: d[1]; 
+                                                return stateName + " Records for " + filterAdultOrPediatric + " Patients";
+                                            })
+
+                        
                     svg.append("g")
                             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                         .append("path")
-                        // .datum(data.filter(function(d) { return d.state === filterState; }))
                         .datum(filteredData)
                         .attr("id", "hospAdultsAll")
                         .attr("fill", "none")
@@ -304,7 +284,6 @@
                     svg.append("g")
                             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                         .append("path")
-                        // .datum(data.filter(function(d) { return d.state === filterState; }))
                         .datum(filteredData)
                         .attr("id", "hospAdultsConfirmed")
                         .attr("fill", "none")
@@ -315,12 +294,37 @@
                 }
             }
 
-            var filteredData = data.filter(function(d) { return d.state === filterState; })
-            drawLineChart(filteredData)
+            // var filteredData = data.filter(function(d) { return d.state === selectedState; })
+            drawLineChart(selectedState)
 
             function updateChart(selectedState) {
                 var filteredData = data.filter(function(d) { return d.state === selectedState; })
-                if (filterAdultOrPediatric === "Adult") {
+                d3.select("#chartTitle")
+                    // .transition()
+                    // .duration(100)
+                    .remove()
+                
+                svg.append("g")
+                    .data(stateList)
+                    .append("text")
+                    .attr("id", "chartTitle")
+                    .attr("x", (width/2))
+                    .attr("y", (margin/2))
+                    .style("font-size", "24px")
+                    .style("text-anchor", "center")
+                    .style("fill", "steelblue")
+                    .text(function(d) { 
+                                            var stateName = ""; 
+                                            for (var row of stateList) {
+                                                if (row[1] === selectedState) {
+                                                    stateName = row[2];
+                                                    break;
+                                                }
+                                            }                                            
+                                            return stateName + " Records for " + filterAdultOrPediatric + " Patients";
+                                        })
+
+                if (filterAdultOrPediatric === "Adult") {                
                     d3.select("#hospAdultsAll")
                         .transition()
                         .duration(100)
@@ -328,7 +332,6 @@
                     svg.append("g")
                             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                         .append("path")
-                        // .datum(data.filter(function(d) { return d.state === filterState; }))
                         .datum(filteredData)
                         .attr("id", "hospAdultsAll")
                         .transition()
@@ -345,7 +348,6 @@
                     svg.append("g")
                             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                         .append("path")
-                        // .datum(data.filter(function(d) { return d.state === filterState; }))
                         .datum(filteredData)
                         .attr("id", "hospAdultsConfirmed")
                         .transition()
@@ -358,12 +360,11 @@
                 }
             }
 
+            // Change of variable 'State' should trigger updating the chart for that 'State'
             d3.select("#states")
                 .on("change", function(d) {
                     var selectedState = d3.select(this).property("value")
                     updateChart(selectedState)
-                    // filteredData = data.filter(function(d) { return d.state === filterState; })
-                    // updateChart(filteredData)
                 })
 
             // // Total Covid Deaths line
@@ -374,7 +375,7 @@
             // svg.append("g")
             //         .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
             //     .append("path")
-            //     .datum(data.filter(function(d) { return d.state === filterState; }))
+            //     .datum(data.filter(function(d) { return d.state === selectedState; }))
                 
             //     .attr("fill", "none")
             //     .attr("stroke", "steelblue")
