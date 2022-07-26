@@ -72,9 +72,7 @@
     <svg></svg>
     <script>
         
-        async function init() {
-
-            var stateList = [
+        var stateList = [
                 [1, "AL", "Alabama"],
                 [2, "AK", "Alaska"],
                 [3, "AZ", "Arizona"],
@@ -130,10 +128,20 @@
                 [53, "WY", "Wyoming"]
             ]
 
-            var selectedState = stateList[0][1];
-            var filterSlideNum = "1";
+        async function init() {
+
+            var selectedState = "CA" //stateList[0][1];
+            var selectedSlideNum = "1";
             var filterAdultOrPediatric = "Adult";
 
+            // ============= Draw the Slide Navigation Buttons =============
+
+
+            // ============== SCENE 1 - ADULTs =====================
+            
+            
+
+            // =========== Populate the State Drop Down list =================
             var dropDown = d3.select("select")
                             .attr("id", "states")
             
@@ -143,13 +151,11 @@
                                     .append("option")
                                     .text(function(d) { return d[2]; })
                                     .attr("value", function(d) { return d[1]; })
+                                    .property("selected", function(d) { return d[1] === selectedState; })
 
             const data = await d3.csv("us_statewise_covid_data_cleaned.csv");
             // const data = await d3.csv('https://flunky.github.io/cars2017.csv');
             
-            // console.log(data)
-            // console.log(data[0].total_adult_patients_hospitalized_confirmed_and_suspected_covid, data[0].deaths_covid, data[0].state);
-
             var width = 1200, height = 600;
             var margin = 100;
 
@@ -163,37 +169,29 @@
 
             //  ======== Draw the x axis ======== 
             var parseTime = d3.timeParse("%Y/%m/%d")
-            var dates = data.map(function(d) { return parseTime(d.date); })
-            var dateDomain = d3.extent(dates)
+            // var dates = data.map(function(d) { return parseTime(d.date); })
+            var dateDomain = d3.extent(data.map(function(d) { return parseTime(d.date); }))
             dateDomain = [d3.timeYear.floor(dateDomain[0]), d3.timeYear.ceil(dateDomain[1])]
-            // console.log(d3.extent(dates))
-
             var xScale = d3.scaleTime().domain(dateDomain).range([0, width-margin])
             
             var xAxis = d3.axisBottom(xScale)
-
             // x axis is date            
             svg.append("g")
                     .attr("transform", "translate("+ margin/2 +","+ ((margin/2)+(height-margin)) +")")
                 .call(xAxis.ticks())
             
+            // ======== Draw the y axis ======== 
             // TODO: yMax should be constant and the maximum of all the charts variables to be shown
             var yMax = 5000;
             if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
-                // console.log(hospAdults)
-                // var maxHospAdults = d3.max(data, function(d) { return +d.total_adult_patients_hospitalized_confirmed_and_suspected_covid})
-                // console.log(maxHospAdults)
                 var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
                 yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
             }
-            // console.log(yMax)
-            // ======== Draw the y axis ======== 
+            
             // var deaths_covid = data.map(function(d) { return parseInt(d.deaths_covid);})
             // var yDomain = d3.extent(deaths_covid)
             var yDomain = [0, yMax]
-            // console.log(yDomain)
-
             var yScale = d3.scaleLinear().domain(yDomain).range([height-margin, 0])
 
             var yAxis = d3.axisLeft(yScale)
@@ -217,40 +215,9 @@
                 var filteredData = data.filter(function(d) { return d.state === selectedState; })
                 
                 if (filterAdultOrPediatric === "Adult") {
-                    // yMax = d3.max(parseInt(data.total_adult_patients_hospitalized_confirmed_and_suspected_covid), 
-                    //                 parseInt(data.total_adult_patients_hospitalized_confirmed_covid));
-                    // console.log('yMax' + yMax)
-
-                    // svg.append("g")
-                    //         // .attr("transform", "translate("+ (width - margin/2 - 200) +","+ (margin/2 + 25) +")")
-                    //     .append("rect")
-                    //     .attr("x", (width - margin/2 - 225))
-                    //     .attr("y", (margin/2 + 25))
-                    //     .attr("width", 200)
-                    //     .attr("height", 100)
-                    //     .attr("fill", "none")
-                    //     .attr("stroke", "steelblue")
-                    //     .attr("stroke-width", 2)
-
-                    // svg.append("g")
-                    //     .append("text")
-                    //     .attr("x", (width - margin/2 - 200))
-                    //     .attr("y", margin)
-                    //     .style("font-size", "22px")
-                    //     .style("color", "steelblue")
-                    //     .text(filterAdultOrPediatric)
-
-                    // svg.append("g")
-                    //     .data(stateList)
-                    //     .append("text")
-                    //     .attr("x", (width - margin/2 - 200))
-                    //     .attr("y", (margin + 50))
-                    //     .style("font-size", "22px")
-                    //     .style("color", "steelblue")
-                    //     .text(function(d) { if (d[1] === selectedState) return d[2]; })
-
+                    
                     svg.append("g")
-                        .data(stateList)
+                        // .data(stateList)
                         .append("text")
                         .attr("id", "chartTitle")
                         .attr("x", (width/2))
@@ -258,7 +225,7 @@
                         .style("font-size", "24px")
                         .style("text-anchor", "center")
                         .style("fill", "steelblue")
-                        .text(function(d) { 
+                        .text(function() { 
                                                 var stateName = ""; 
                                                 for (var row of stateList) {
                                                     if (row[1] === selectedState) {
@@ -266,7 +233,7 @@
                                                         break;
                                                     }
                                                 } 
-                                                //(d[1] === selectedState) ? d[2]: d[1]; 
+                                                
                                                 return stateName + " Records for " + filterAdultOrPediatric + " Patients";
                                             })
 
@@ -299,13 +266,11 @@
 
             function updateChart(selectedState) {
                 var filteredData = data.filter(function(d) { return d.state === selectedState; })
-                d3.select("#chartTitle")
-                    // .transition()
-                    // .duration(100)
+                d3.select("#chartTitle")                    
                     .remove()
                 
                 svg.append("g")
-                    .data(stateList)
+                    // .data(stateList)
                     .append("text")
                     .attr("id", "chartTitle")
                     .attr("x", (width/2))
@@ -313,7 +278,7 @@
                     .style("font-size", "24px")
                     .style("text-anchor", "center")
                     .style("fill", "steelblue")
-                    .text(function(d) { 
+                    .text(function() { 
                                             var stateName = ""; 
                                             for (var row of stateList) {
                                                 if (row[1] === selectedState) {
