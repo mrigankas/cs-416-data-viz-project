@@ -160,7 +160,7 @@
         function getYScale(data, filterAdultOrPediatric) {
             // TODO: yMax should be constant and the maximum of all the charts variables to be shown
             var yMax = 5000;
-            if (filterAdultOrPediatric === "Adult" || filterAdultOrPediatric === "All") {
+            if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
                 var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
                 yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
@@ -169,6 +169,12 @@
                 var hospPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid); })
                 var confPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
                 yMax = d3.max([d3.max(hospPediatrics), d3.max(confPediatrics)])
+            }
+            else if (filterAdultOrPediatric === "All") {
+                var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
+                var confPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
+                var covidDeaths = data.map(function(d) { return parseInt(d.deaths_covid); })
+                yMax = d3.max([d3.max(confAdults), d3.max(confPediatrics), d3.max(covidDeaths)])
             }
             
             // var deaths_covid = data.map(function(d) { return parseInt(d.deaths_covid);})
