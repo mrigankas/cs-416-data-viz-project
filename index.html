@@ -157,23 +157,23 @@
                 .attr("id", "x-axis")
         }
 
-        function getYScale(data, filterAdultOrPediatric) {
+        function getYScale(filteredData, filterAdultOrPediatric) {
             // TODO: yMax should be constant and the maximum of all the charts variables to be shown
             var yMax = 5000;
             if (filterAdultOrPediatric === "Adult") {
-                var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
-                var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
+                var hospAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
+                var confAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
                 yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
             }
             else if (filterAdultOrPediatric === "Pediatric") {
-                var hospPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid); })
-                var confPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
+                var hospPediatrics = filteredData.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid); })
+                var confPediatrics = filteredData.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
                 yMax = d3.max([d3.max(hospPediatrics), d3.max(confPediatrics)])
             }
             else if (filterAdultOrPediatric === "All") {
-                var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
-                var confPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
-                var covidDeaths = data.map(function(d) { return parseInt(d.deaths_covid); })
+                var confAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
+                var confPediatrics = filteredData.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
+                var covidDeaths = filteredData.map(function(d) { return parseInt(d.deaths_covid); })
                 yMax = d3.max([d3.max(confAdults), d3.max(confPediatrics), d3.max(covidDeaths)])
             }
             
@@ -185,8 +185,13 @@
             return yScale
         }
 
-        function drawYAxis(yScale) {
+        // function drawYAxis(yScale) {
+        function drawYAxis(data, selectedState, filterAdultOrPediatric) {
             d3.select("#y-axis").remove()
+            
+            var filteredData = data.filter(function(d) { return d.state === selectedState; })
+            var yScale = getYScale(filteredData, filterAdultOrPediatric)
+
             var yAxis = d3.axisLeft(yScale)
             // y axis is case count
             svg.append("g")
@@ -195,9 +200,14 @@
                 .attr("id", "y-axis")
         }
 
-        function getHospitalizedLine(filterAdultOrPediatric, xScale, yScale) {
+        // function getHospitalizedLine(filterAdultOrPediatric, xScale, yScale) {
+        function getHospitalizedLine(filterAdultOrPediatric, xScale, data, selectedState) {
             // Total Covid hospitalized line
             var parseTime = d3.timeParse("%Y/%m/%d")
+
+            var filteredData = data.filter(function(d) { return d.state === selectedState; })
+            var yScale = getYScale(filteredData, filterAdultOrPediatric)
+
             if (filterAdultOrPediatric === "Adult") {
                 var allHospitalizedAdultsLine = d3.line()
                     .x(function(d) { return xScale(parseTime(d.date)); })
@@ -214,9 +224,14 @@
             }
         }
 
-        function getConfirmedLine(filterAdultOrPediatric, xScale, yScale) {
+        // function getConfirmedLine(filterAdultOrPediatric, xScale, yScale) {
+        function getConfirmedLine(filterAdultOrPediatric, xScale, data, selectedState) {
             // Total Covid hospitalized confirmed line
             var parseTime = d3.timeParse("%Y/%m/%d")
+
+            var filteredData = data.filter(function(d) { return d.state === selectedState; })
+            var yScale = getYScale(filteredData, filterAdultOrPediatric)
+            
             if (filterAdultOrPediatric === "Adult") {
                 var confirmedHospitalizedAdultsLine = d3.line()
                     .x(function(d) { return xScale(parseTime(d.date)); })
@@ -233,9 +248,14 @@
             }            
         }
 
-        function getCovidDeathLine(filterAdultOrPediatric, xScale, yScale) {
+        // function getCovidDeathLine(filterAdultOrPediatric, xScale, yScale) {
+        function getCovidDeathLine(filterAdultOrPediatric, xScale, data, selectedState) {
             // Total Covid death line
             var parseTime = d3.timeParse("%Y/%m/%d")
+
+            var filteredData = data.filter(function(d) { return d.state === selectedState; })
+            var yScale = getYScale(filteredData, filterAdultOrPediatric)
+
             var covidDeathsLine = d3.line()
                 .x(function(d) { return xScale(parseTime(d.date)); })
                 .y(function(d) { return yScale(parseInt(d.deaths_covid)); })
@@ -259,6 +279,9 @@
         }
 
         function drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines) {
+        // function drawAdultOrPediatricLines(data, selectedState, allHospitalizedLine, confirmedHospitalizedLine, redrawLines) {
+            // var filteredData = data.filter(function(d) { return d.state === selectedState; })
+
             if (!redrawLines) {
                 // Draw first time
                 svg.append("g")
@@ -269,9 +292,7 @@
                     .attr("fill", "none")
                     .attr("stroke", "orange")
                     .attr("stroke-width", 2)
-                    // .attr("d", allHospitalizedAdultsLine)
                     .attr("d", allHospitalizedLine)
-
                 
                 svg.append("g")
                         .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
@@ -281,7 +302,6 @@
                     .attr("fill", "none")
                     .attr("stroke", "red")
                     .attr("stroke-width", 2)
-                    // .attr("d", confirmedHospitalizedAdultsLine)
                     .attr("d", confirmedHospitalizedLine)
             }
             else {
@@ -296,7 +316,6 @@
                     .attr("fill", "none")
                     .attr("stroke", "orange")
                     .attr("stroke-width", 2)
-                    // .attr("d", allHospitalizedAdultsLine)
                     .attr("d", allHospitalizedLine)
 
                 svg.append("g")
@@ -309,7 +328,6 @@
                     .attr("fill", "none")
                     .attr("stroke", "red")
                     .attr("stroke-width", 2)
-                    // .attr("d", confirmedHospitalizedAdultsLine)
                     .attr("d", confirmedHospitalizedLine)
             }
         }
@@ -325,7 +343,6 @@
                     .attr("fill", "none")
                     .attr("stroke", "orange")
                     .attr("stroke-width", 2)
-                    // .attr("d", allHospitalizedAdultsLine)
                     .attr("d", confirmedAdultsLine)
 
                 svg.append("g")
@@ -336,7 +353,6 @@
                     .attr("fill", "none")
                     .attr("stroke", "red")
                     .attr("stroke-width", 2)
-                    // .attr("d", confirmedHospitalizedAdultsLine)
                     .attr("d", confirmedPediatricLine)
 
                 svg.append("g")
@@ -347,7 +363,6 @@
                     .attr("fill", "none")
                     .attr("stroke", "purple")
                     .attr("stroke-width", 2)
-                    // .attr("d", confirmedHospitalizedAdultsLine)
                     .attr("d", covidDeathsLine)
             }
             else {
@@ -430,37 +445,51 @@
                 drawXAxis(xScale)
                 
                 // ======== Draw the y axis ======== 
-                var yScale = getYScale(data, filterAdultOrPediatric)
-                drawYAxis(yScale)
+                // var filteredData = data.filter(function(d) { return d.state === selectedState; })
+                // var yScale = getYScale(filteredData, filterAdultOrPediatric)
+                // drawYAxis(yScale)
+                drawYAxis(data, selectedState, filterAdultOrPediatric)
 
                 // Total Covid hospitalized line
-                var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, yScale)
+                // var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, yScale)
+                var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, data, selectedState)
 
                 // Total Covid hospitalized confirmed line
-                var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, yScale)
+                // var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, yScale)
+                var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, data, selectedState)
                 
-                var confirmedAdultsLine = getConfirmedLine("Adult", xScale, yScale)
-                var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, yScale)
-                var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, yScale)
+                // var confirmedAdultsLine = getConfirmedLine("Adult", xScale, yScale)
+                // var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, yScale)
+                // var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, yScale)
+
+                var confirmedAdultsLine = getConfirmedLine("Adult", xScale, data, selectedState)
+                var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, data, selectedState)
+                var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, data, selectedState)
 
                 // function drawLineChart(selectedState, filterAdultOrPediatric) {
                 function drawLineChart(selectedState, filterAdultOrPediatric, redrawLines) {
-                    // alert("2" + selectedState)
+                    // alert("2 " + redrawLines)
                     var filteredData = data.filter(function(d) { return d.state === selectedState; })
-                    
-                    drawTitle(selectedState, filterAdultOrPediatric)
                     
                     clearLines()
 
+                    drawTitle(selectedState, filterAdultOrPediatric)
+                    
+                    drawXAxis(xScale)
+                    drawYAxis(data, selectedState, filterAdultOrPediatric)
+
+                    
+
                     if (filterAdultOrPediatric !== "All")
                         drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines)
+                        // drawAdultOrPediatricLines(data, selectedState, allHospitalizedLine, confirmedHospitalizedLine, redrawLines)
                     else
                         drawSummaryLines(filteredData, confirmedAdultsLine, confirmedPediatricLine, covidDeathsLine, redrawLines)
                     
                 }
 
                 // var filteredData = data.filter(function(d) { return d.state === selectedState; })
-                drawLineChart(selectedState, filterAdultOrPediatric)
+                drawLineChart(selectedState, filterAdultOrPediatric, redrawLines)
 
                 // Change of variable 'State' should trigger updating the chart for that 'State'
                 d3.select("#states")
@@ -473,6 +502,7 @@
             
             }
 
+            // alert("1 " + redrawLines)
             drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState, redrawLines)
 
             // Change of variable 'selectedSlideNum' should trigger drawing the scene for that 'selectedSlideNum'
