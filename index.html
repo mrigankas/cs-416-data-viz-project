@@ -276,7 +276,6 @@
                 
                 // ======== Draw the y axis ======== 
                 var yScale = getYScale(data, filterAdultOrPediatric)
-
                 drawYAxis(yScale)
 
                 // Total Covid hospitalized line
@@ -298,12 +297,12 @@
                     // if (filterAdultOrPediatric === "Adult") {
                     
                     
-                        d3.select("#hospAdultsAll")
+                        d3.select("#hospitalizedAll")
                             .transition()
                             .duration(100)
                             .remove()
 
-                        d3.select("#hospAdultsConfirmed")
+                        d3.select("#hospitalizedConfirmed")
                             .transition()
                             .duration(100)
                             .remove()
@@ -317,7 +316,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsAll")
+                            .attr("id", "hospitalizedAll")
                             .attr("fill", "none")
                             .attr("stroke", "orange")
                             .attr("stroke-width", 2)
@@ -329,7 +328,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsConfirmed")
+                            .attr("id", "hospitalizedConfirmed")
                             .attr("fill", "none")
                             .attr("stroke", "red")
                             .attr("stroke-width", 2)
@@ -341,7 +340,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsAll")
+                            .attr("id", "hospitalizedAll")
                             .attr("fill", "none")
                             .attr("stroke", "orange")
                             .attr("stroke-width", 2)
@@ -352,7 +351,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsConfirmed")
+                            .attr("id", "hospitalizedConfirmed")
                             .attr("fill", "none")
                             .attr("stroke", "red")
                             .attr("stroke-width", 2)
@@ -403,12 +402,12 @@
 
                     // if (filterAdultOrPediatric === "Adult") {     
                                    
-                        d3.select("#hospAdultsAll")
+                        d3.select("#hospitalizedAll")
                             .transition()
                             .duration(100)
                             .remove()
 
-                        d3.select("#hospAdultsConfirmed")
+                        d3.select("#hospitalizedConfirmed")
                             .transition()
                             .duration(100)
                             .remove()
@@ -421,7 +420,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsAll")
+                            .attr("id", "hospitalizedAll")
                             .transition()
                             .duration(1000)
                             .attr("fill", "none")
@@ -434,7 +433,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsConfirmed")
+                            .attr("id", "hospitalizedConfirmed")
                             .transition()
                             .duration(1000)
                             .attr("fill", "none")
@@ -448,7 +447,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsAll")
+                            .attr("id", "hospitalizedAll")
                             .transition()
                             .duration(1000)
                             .attr("fill", "none")
@@ -461,7 +460,7 @@
                                 .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
                             .append("path")
                             .datum(filteredData)
-                            .attr("id", "hospAdultsConfirmed")
+                            .attr("id", "hospitalizedConfirmed")
                             .transition()
                             .duration(1000)
                             .attr("fill", "none")
