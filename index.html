@@ -95,7 +95,7 @@
                 .append("text")
                 .attr("id", "chartTitle")
                 .attr("x", (width/2 - margin))
-                .attr("y", (margin/2))
+                .attr("y", (margin/2 - 30))
                 .style("font-size", "24px")
                 .style("text-anchor", "center")
                 .style("fill", "steelblue")
@@ -450,25 +450,8 @@
                 // drawYAxis(yScale)
                 drawYAxis(data, selectedState, filterAdultOrPediatric)
 
-                // Total Covid hospitalized line
-                // var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, yScale)
-                var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, data, selectedState)
-
-                // Total Covid hospitalized confirmed line
-                // var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, yScale)
-                var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, data, selectedState)
-                
-                // var confirmedAdultsLine = getConfirmedLine("Adult", xScale, yScale)
-                // var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, yScale)
-                // var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, yScale)
-
-                var confirmedAdultsLine = getConfirmedLine("Adult", xScale, data, selectedState)
-                var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, data, selectedState)
-                var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, data, selectedState)
-
                 // function drawLineChart(selectedState, filterAdultOrPediatric) {
                 function drawLineChart(selectedState, filterAdultOrPediatric, redrawLines) {
-                    // alert("2 " + redrawLines)
                     var filteredData = data.filter(function(d) { return d.state === selectedState; })
                     
                     clearLines()
@@ -478,7 +461,21 @@
                     drawXAxis(xScale)
                     drawYAxis(data, selectedState, filterAdultOrPediatric)
 
-                    
+                    // Total Covid hospitalized line
+                    // var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, yScale)
+                    var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, data, selectedState)
+
+                    // Total Covid hospitalized confirmed line
+                    // var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, yScale)
+                    var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, data, selectedState)
+
+                    // var confirmedAdultsLine = getConfirmedLine("Adult", xScale, yScale)
+                    // var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, yScale)
+                    // var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, yScale)
+
+                    var confirmedAdultsLine = getConfirmedLine("Adult", xScale, data, selectedState)
+                    var confirmedPediatricLine = getConfirmedLine("Pediatric", xScale, data, selectedState)
+                    var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, data, selectedState)
 
                     if (filterAdultOrPediatric !== "All")
                         drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines)
@@ -502,7 +499,6 @@
             
             }
 
-            // alert("1 " + redrawLines)
             drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState, redrawLines)
 
             // Change of variable 'selectedSlideNum' should trigger drawing the scene for that 'selectedSlideNum'
