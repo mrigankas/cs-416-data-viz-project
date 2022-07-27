@@ -12,8 +12,8 @@
     <h1>Narrative Visualization</h1>
     <p>Under construction ...</p>
     <div id="navigation"></div>
-    <p id="space1"></div>
-    <label for="states">Select a state:</label>
+    <p id="space1"></p>
+    <label for="states">Select a State:</label>
     <!-- <select name="states" id="states">
         <option value="AL">Alabama</option>
         <option value="AK">Alaska</option>
@@ -144,6 +144,7 @@
         
 
         function drawTitle(selectedState, filterAdultOrPediatric) {
+            d3.select("#chartTitle").remove()
             svg.append("g")
                 // .data(stateList)
                 .append("text")
@@ -174,6 +175,111 @@
                 .enter()
                 .append("button")
                 .text(function(d) { return d; })
+                .attr("id", function(d) { return d; })
+        }
+
+        function drawStateDropDown(selectedState) {
+            // alert("4" + selectedState)
+            var dropDown = d3.select("select")
+                            .attr("id", "states")
+            
+            var options = dropDown.selectAll("option")
+                                    .data(stateList)
+                                    .enter()
+                                    .append("option")
+                                    .text(function(d) { return d[2]; })
+                                    .attr("value", function(d) { return d[1]; })
+                                    .property("selected", function(d) { return d[1] === selectedState; })
+        }
+        
+        function getXScale(data) {
+            var parseTime = d3.timeParse("%Y/%m/%d")
+            // var dates = data.map(function(d) { return parseTime(d.date); })
+            var dateDomain = d3.extent(data.map(function(d) { return parseTime(d.date); }))
+            dateDomain = [d3.timeYear.floor(dateDomain[0]), d3.timeYear.ceil(dateDomain[1])]
+            var xScale = d3.scaleTime().domain(dateDomain).range([0, width-margin])
+
+            return xScale
+        }
+
+        function drawXAxis(xScale) {
+            d3.select("#x-axis").remove()
+            var xAxis = d3.axisBottom(xScale)                            
+            // x axis is date            
+            svg.append("g")
+                    .attr("transform", "translate("+ margin/2 +","+ ((margin/2)+(height-margin)) +")")
+                .call(xAxis.ticks())
+                .attr("id", "x-axis")
+        }
+
+        function getYScale(data, filterAdultOrPediatric) {
+            // TODO: yMax should be constant and the maximum of all the charts variables to be shown
+            var yMax = 5000;
+            if (filterAdultOrPediatric === "Adult") {
+                var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
+                var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
+                yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
+            }
+            else if (filterAdultOrPediatric === "Pediatric") {
+                var hospPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid); })
+                var confPediatrics = data.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid); })
+                yMax = d3.max([d3.max(hospPediatrics), d3.max(confPediatrics)])
+            }
+            
+            // var deaths_covid = data.map(function(d) { return parseInt(d.deaths_covid);})
+            // var yDomain = d3.extent(deaths_covid)
+            var yDomain = [0, yMax]
+            var yScale = d3.scaleLinear().domain(yDomain).range([height-margin, 0])
+
+            return yScale
+        }
+
+        function drawYAxis(yScale) {
+            d3.select("#y-axis").remove()
+            var yAxis = d3.axisLeft(yScale)
+            // y axis is case count
+            svg.append("g")
+                    .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                .call(yAxis.ticks())
+                .attr("id", "y-axis")
+        }
+
+        function getHospitalizedLine(filterAdultOrPediatric, xScale, yScale) {
+            // Total Covid hospitalized line
+            var parseTime = d3.timeParse("%Y/%m/%d")
+            if (filterAdultOrPediatric === "Adult") {
+                var allHospitalizedAdultsLine = d3.line()
+                    .x(function(d) { return xScale(parseTime(d.date)); })
+                    .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid)); })
+                
+                return allHospitalizedAdultsLine
+            }
+            else if (filterAdultOrPediatric === "Pediatric") {
+                var allHospitalizedPediatricLine = d3.line()
+                    .x(function(d) { return xScale(parseTime(d.date)); })
+                    .y(function(d) { return yScale(parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid)); })
+                
+                return allHospitalizedPediatricLine
+            }
+        }
+
+        function getConfirmedLine(filterAdultOrPediatric, xScale, yScale) {
+            // Total Covid hospitalized confirmed line
+            var parseTime = d3.timeParse("%Y/%m/%d")
+            if (filterAdultOrPediatric === "Adult") {
+                var confirmedHospitalizedAdultsLine = d3.line()
+                    .x(function(d) { return xScale(parseTime(d.date)); })
+                    .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_covid)); })
+
+                return confirmedHospitalizedAdultsLine
+            }
+            else if (filterAdultOrPediatric === "Pediatric") {
+                var confirmedHospitalizedPediatricLine = d3.line()
+                    .x(function(d) { return xScale(parseTime(d.date)); })
+                    .y(function(d) { return yScale(parseInt(d.total_pediatric_patients_hospitalized_confirmed_covid)); })
+
+                return confirmedHospitalizedPediatricLine
+            }
         }
 
         async function init() {
@@ -181,7 +287,6 @@
             var selectedState = "CA" //stateList[0][1];
             var selectedSlideNum = "1";
             var filterAdultOrPediatric = "Adult";
-
 
             // ============= Draw the Slide Navigation Buttons =============
             // var button = d3.selectAll("button")
@@ -194,192 +299,207 @@
 
             // ============== SCENE 1 - ADULTs =====================
             
-            
-
+           
             // =========== Populate the State Drop Down list =================
-            var dropDown = d3.select("select")
-                            .attr("id", "states")
+            // var dropDown = d3.select("select")
+            //                 .attr("id", "states")
             
-            var options = dropDown.selectAll("option")
-                                    .data(stateList)
-                                    .enter()
-                                    .append("option")
-                                    .text(function(d) { return d[2]; })
-                                    .attr("value", function(d) { return d[1]; })
-                                    .property("selected", function(d) { return d[1] === selectedState; })
+            // var options = dropDown.selectAll("option")
+            //                         .data(stateList)
+            //                         .enter()
+            //                         .append("option")
+            //                         .text(function(d) { return d[2]; })
+            //                         .attr("value", function(d) { return d[1]; })
+            //                         .property("selected", function(d) { return d[1] === selectedState; })
+
+            drawStateDropDown(selectedState)
+
+            if (selectedState !== d3.select("#states").property("value"))
+                selectedState = d3.select("#states").property("value");
 
             const data = await d3.csv("us_statewise_covid_data_cleaned.csv");
             // const data = await d3.csv('https://flunky.github.io/cars2017.csv');
             
-            
-            //  ======== Draw the x axis ======== 
-            var parseTime = d3.timeParse("%Y/%m/%d")
-            // var dates = data.map(function(d) { return parseTime(d.date); })
-            var dateDomain = d3.extent(data.map(function(d) { return parseTime(d.date); }))
-            dateDomain = [d3.timeYear.floor(dateDomain[0]), d3.timeYear.ceil(dateDomain[1])]
-            var xScale = d3.scaleTime().domain(dateDomain).range([0, width-margin])
-            
-            var xAxis = d3.axisBottom(xScale)
-            // x axis is date            
-            svg.append("g")
-                    .attr("transform", "translate("+ margin/2 +","+ ((margin/2)+(height-margin)) +")")
-                .call(xAxis.ticks())
-            
-            // ======== Draw the y axis ======== 
-            // TODO: yMax should be constant and the maximum of all the charts variables to be shown
-            var yMax = 5000;
-            if (filterAdultOrPediatric === "Adult") {
-                var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
-                var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
-                yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
-            }
-            
-            // var deaths_covid = data.map(function(d) { return parseInt(d.deaths_covid);})
-            // var yDomain = d3.extent(deaths_covid)
-            var yDomain = [0, yMax]
-            var yScale = d3.scaleLinear().domain(yDomain).range([height-margin, 0])
+            drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState)
 
-            var yAxis = d3.axisLeft(yScale)
-            // y axis is case count
-            svg.append("g")
-                    .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                .call(yAxis.ticks())
+            // ============ Draw the Scene ===================
+            function drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState) {
 
-            // Total Covid hospitalized line
-            var allHospitalizedAdultsLine = d3.line()
-                .x(function(d) { return xScale(parseTime(d.date)); })
-                .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid)); })
-
-            // Total Covid hospitalized confirmed line
-            var confirmedHospitalizedAdultsLine = d3.line()
-                .x(function(d) { return xScale(parseTime(d.date)); })
-                .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_covid)); })
-
-            
-            function drawLineChart(selectedState) {
-                var filteredData = data.filter(function(d) { return d.state === selectedState; })
-                
-                drawTitle(selectedState, filterAdultOrPediatric)
-                
-                if (filterAdultOrPediatric === "Adult") {
-                    
-                    // svg.append("g")
-                    //     // .data(stateList)
-                    //     .append("text")
-                    //     .attr("id", "chartTitle")
-                    //     .attr("x", (width/2))
-                    //     .attr("y", (margin/2))
-                    //     .style("font-size", "24px")
-                    //     .style("text-anchor", "center")
-                    //     .style("fill", "steelblue")
-                    //     .text(function() { 
-                    //                             var stateName = ""; 
-                    //                             for (var row of stateList) {
-                    //                                 if (row[1] === selectedState) {
-                    //                                     stateName = row[2];
-                    //                                     break;
-                    //                                 }
-                    //                             } 
-                                                
-                    //                             return stateName + " Records for " + filterAdultOrPediatric + " Patients";
-                    //                         })
-
-                        
-                    svg.append("g")
-                            .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                        .append("path")
-                        .datum(filteredData)
-                        .attr("id", "hospAdultsAll")
-                        .attr("fill", "none")
-                        .attr("stroke", "orange")
-                        .attr("stroke-width", 2)
-                        .attr("d", allHospitalizedAdultsLine)
-
-                    svg.append("g")
-                            .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                        .append("path")
-                        .datum(filteredData)
-                        .attr("id", "hospAdultsConfirmed")
-                        .attr("fill", "none")
-                        .attr("stroke", "red")
-                        .attr("stroke-width", 2)
-                        .attr("d", confirmedHospitalizedAdultsLine)
-
+                // alert(selectedSlideNum)
+                // alert("1" + selectedState)
+                if (selectedSlideNum === "1") {
+                    filterAdultOrPediatric = "Adult"
                 }
-            }
-
-            // var filteredData = data.filter(function(d) { return d.state === selectedState; })
-            drawLineChart(selectedState)
-
-            function updateChart(selectedState) {
-                var filteredData = data.filter(function(d) { return d.state === selectedState; })
-                d3.select("#chartTitle")                    
-                    .remove()
+                else if (selectedSlideNum === "2") {
+                    filterAdultOrPediatric = "Pediatric"
+                }
                 
+                //  ======== Draw the x axis ======== 
+                // var parseTime = d3.timeParse("%Y/%m/%d")
+                // // var dates = data.map(function(d) { return parseTime(d.date); })
+                // var dateDomain = d3.extent(data.map(function(d) { return parseTime(d.date); }))
+                // dateDomain = [d3.timeYear.floor(dateDomain[0]), d3.timeYear.ceil(dateDomain[1])]
+                // var xScale = d3.scaleTime().domain(dateDomain).range([0, width-margin])
+                
+                var xScale = getXScale(data)
+                // var xAxis = d3.axisBottom(xScale)
+                // // x axis is date            
                 // svg.append("g")
-                //     // .data(stateList)
-                //     .append("text")
-                //     .attr("id", "chartTitle")
-                //     .attr("x", (width/2))
-                //     .attr("y", (margin/2))
-                //     .style("font-size", "24px")
-                //     .style("text-anchor", "center")
-                //     .style("fill", "steelblue")
-                //     .text(function() { 
-                //                             var stateName = ""; 
-                //                             for (var row of stateList) {
-                //                                 if (row[1] === selectedState) {
-                //                                     stateName = row[2];
-                //                                     break;
-                //                                 }
-                //                             }                                            
-                //                             return stateName + " Records for " + filterAdultOrPediatric + " Patients";
-                //                         })
+                //         .attr("transform", "translate("+ margin/2 +","+ ((margin/2)+(height-margin)) +")")
+                //     .call(xAxis.ticks())
+                drawXAxis(xScale)
+                
+                // ======== Draw the y axis ======== 
+                // TODO: yMax should be constant and the maximum of all the charts variables to be shown
+                // var yMax = 5000;
+                // if (filterAdultOrPediatric === "Adult") {
+                //     var hospAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
+                //     var confAdults = data.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
+                //     yMax = d3.max([d3.max(hospAdults), d3.max(confAdults)])
+                // }
+                
+                // // var deaths_covid = data.map(function(d) { return parseInt(d.deaths_covid);})
+                // // var yDomain = d3.extent(deaths_covid)
+                // var yDomain = [0, yMax]
+                // var yScale = d3.scaleLinear().domain(yDomain).range([height-margin, 0])
+                var yScale = getYScale(data, filterAdultOrPediatric)
 
-                drawTitle(selectedState, filterAdultOrPediatric)
+                // var yAxis = d3.axisLeft(yScale)
+                // // y axis is case count
+                // svg.append("g")
+                //         .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                //     .call(yAxis.ticks())
+                drawYAxis(yScale)
 
-                if (filterAdultOrPediatric === "Adult") {                
-                    d3.select("#hospAdultsAll")
-                        .transition()
-                        .duration(100)
-                        .remove()
-                    svg.append("g")
-                            .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                        .append("path")
-                        .datum(filteredData)
-                        .attr("id", "hospAdultsAll")
-                        .transition()
-                        .duration(1000)
-                        .attr("fill", "none")
-                        .attr("stroke", "orange")
-                        .attr("stroke-width", 2)
-                        .attr("d", allHospitalizedAdultsLine)
+                // // Total Covid hospitalized line
+                // var allHospitalizedAdultsLine = d3.line()
+                //     .x(function(d) { return xScale(parseTime(d.date)); })
+                //     .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid)); })
+                
+                var allHospitalizedLine = getHospitalizedLine(filterAdultOrPediatric, xScale, yScale)
 
-                    d3.select("#hospAdultsConfirmed")
-                        .transition()
-                        .duration(100)
-                        .remove()
-                    svg.append("g")
-                            .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                        .append("path")
-                        .datum(filteredData)
-                        .attr("id", "hospAdultsConfirmed")
-                        .transition()
-                        .duration(1000)
-                        .attr("fill", "none")
-                        .attr("stroke", "red")
-                        .attr("stroke-width", 2)
-                        .attr("d", confirmedHospitalizedAdultsLine)
+                // Total Covid hospitalized confirmed line
+                // var confirmedHospitalizedAdultsLine = d3.line()
+                //     .x(function(d) { return xScale(parseTime(d.date)); })
+                //     .y(function(d) { return yScale(parseInt(d.total_adult_patients_hospitalized_confirmed_covid)); })
+
+                var confirmedHospitalizedLine = getConfirmedLine(filterAdultOrPediatric, xScale, yScale)
+                
+                function drawLineChart(selectedState, filterAdultOrPediatric) {
+                    // alert("2" + selectedState)
+                    var filteredData = data.filter(function(d) { return d.state === selectedState; })
+                    
+                    drawTitle(selectedState, filterAdultOrPediatric)
+                    
+                    // if (filterAdultOrPediatric === "Adult") {
                         
+                        d3.select("#hospAdultsAll")
+                            .transition()
+                            .duration(100)
+                            .remove()
+
+                        svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospAdultsAll")
+                            .attr("fill", "none")
+                            .attr("stroke", "orange")
+                            .attr("stroke-width", 2)
+                            // .attr("d", allHospitalizedAdultsLine)
+                            .attr("d", allHospitalizedLine)
+
+                        d3.select("#hospAdultsConfirmed")
+                            .transition()
+                            .duration(100)
+                            .remove()
+
+                        svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospAdultsConfirmed")
+                            .attr("fill", "none")
+                            .attr("stroke", "red")
+                            .attr("stroke-width", 2)
+                            // .attr("d", confirmedHospitalizedAdultsLine)
+                            .attr("d", confirmedHospitalizedLine)
+
+                    // }
                 }
+
+                // var filteredData = data.filter(function(d) { return d.state === selectedState; })
+                drawLineChart(selectedState, filterAdultOrPediatric)
+
+                function updateChart(selectedState, filterAdultOrPediatric) {
+                    // alert("3" + selectedState)
+                    var filteredData = data.filter(function(d) { return d.state === selectedState; })
+                    d3.select("#chartTitle")                    
+                        .remove()                
+
+                    drawTitle(selectedState, filterAdultOrPediatric)
+
+                    // if (filterAdultOrPediatric === "Adult") {                
+                        d3.select("#hospAdultsAll")
+                            .transition()
+                            .duration(100)
+                            .remove()
+                        svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospAdultsAll")
+                            .transition()
+                            .duration(1000)
+                            .attr("fill", "none")
+                            .attr("stroke", "orange")
+                            .attr("stroke-width", 2)
+                            // .attr("d", allHospitalizedAdultsLine)
+                            .attr("d", allHospitalizedLine)
+
+                        d3.select("#hospAdultsConfirmed")
+                            .transition()
+                            .duration(100)
+                            .remove()
+                        svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospAdultsConfirmed")
+                            .transition()
+                            .duration(1000)
+                            .attr("fill", "none")
+                            .attr("stroke", "red")
+                            .attr("stroke-width", 2)
+                            // .attr("d", confirmedHospitalizedAdultsLine)
+                            .attr("d", confirmedHospitalizedLine)
+                            
+                    // }
+                }
+
+                // Change of variable 'State' should trigger updating the chart for that 'State'
+                d3.select("#states")
+                    .on("change", function(d) {
+                        selectedState = d3.select(this).property("value")
+                        updateChart(selectedState, filterAdultOrPediatric)
+                    })
+            
             }
 
+            // alert("5" + selectedState)
             // Change of variable 'State' should trigger updating the chart for that 'State'
-            d3.select("#states")
-                .on("change", function(d) {
-                    var selectedState = d3.select(this).property("value")
-                    updateChart(selectedState)
+            d3.selectAll("button")
+                .on("click", function(d) {
+                    selectedSlideNum = d3.select(this).property("id")
+                    selectedState = d3.select("#states").property("value")
+                    // alert(selectedSlideNum)
+                    drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState)
                 })
+
+
+            // ================= SCENE 2 - PEDIATRIC =====================
+
+
 
             // // Total Covid Deaths line
             // var covidDeathLine = d3.line()
