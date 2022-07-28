@@ -11,10 +11,12 @@
 <body onload="init()">
     <h1>Narrative Visualization</h1>
     <p>Under construction ...</p>
-    <div id="navigation"></div>
-    <p id="space1"></p>
-    <label for="states">Select a State:</label>
-    <select></select>
+    <div>
+        <div id="navigation"></div>
+        <p id="space1"></p>
+        <label for="states">Select a State:</label>
+        <select></select>
+    </div>
     <!-- <svg width="800" height="800"></svg> -->
     <svg></svg>
     <script>
@@ -279,133 +281,219 @@
         }
 
         function drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines) {
-        // function drawAdultOrPediatricLines(data, selectedState, allHospitalizedLine, confirmedHospitalizedLine, redrawLines) {
-            // var filteredData = data.filter(function(d) { return d.state === selectedState; })
 
-            if (!redrawLines) {
-                // Draw first time
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedAll")
-                    .attr("fill", "none")
-                    .attr("stroke", "orange")
-                    .attr("stroke-width", 2)
-                    .attr("d", allHospitalizedLine)
+            var lineOne = svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospitalizedAll")
+                            .attr("class", "line")
+
+            var lineTwo = svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospitalizedConfirmed")
+                            .attr("class", "line")
+            
+            if (redrawLines) {
+                lineOne = lineOne
+                    .transition()
+                    .duration(1000)
+
+                lineTwo = lineTwo
+                    .transition()
+                    .duration(1000)
+            }
+
+            lineOne
+                .attr("fill", "none")
+                .attr("stroke", "orange")
+                .attr("stroke-width", 2)
+                .attr("d", allHospitalizedLine)
+
+            lineTwo
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 2)
+                .attr("d", confirmedHospitalizedLine)
+
+            // if (!redrawLines) {
+            //     // Draw first time
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedAll")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "orange")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", allHospitalizedLine)
                 
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedConfirmed")
-                    .attr("fill", "none")
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 2)
-                    .attr("d", confirmedHospitalizedLine)
-            }
-            else {
-                // Redraw with transition
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedAll")
-                    .transition()
-                    .duration(1000)
-                    .attr("fill", "none")
-                    .attr("stroke", "orange")
-                    .attr("stroke-width", 2)
-                    .attr("d", allHospitalizedLine)
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedConfirmed")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "red")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", confirmedHospitalizedLine)
+            // }
+            // else {
+            //     // Redraw with transition
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedAll")
+            //         .transition()
+            //         .duration(1000)
+            //         .attr("fill", "none")
+            //         .attr("stroke", "orange")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", allHospitalizedLine)
 
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedConfirmed")
-                    .transition()
-                    .duration(1000)
-                    .attr("fill", "none")
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 2)
-                    .attr("d", confirmedHospitalizedLine)
-            }
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedConfirmed")
+            //         .transition()
+            //         .duration(1000)
+            //         .attr("fill", "none")
+            //         .attr("stroke", "red")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", confirmedHospitalizedLine)
+            // }
         }
 
         function drawSummaryLines(filteredData, confirmedAdultsLine, confirmedPediatricLine, covidDeathsLine, redrawLines) {
-            if (!redrawLines) {
-                // Draw first time
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedAll")
-                    .attr("fill", "none")
-                    .attr("stroke", "orange")
-                    .attr("stroke-width", 2)
-                    .attr("d", confirmedAdultsLine)
 
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedConfirmed")
-                    .attr("fill", "none")
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 2)
-                    .attr("d", confirmedPediatricLine)
+            var lineOne = svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospitalizedAll")
 
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "covidDeaths")
-                    .attr("fill", "none")
-                    .attr("stroke", "purple")
-                    .attr("stroke-width", 2)
-                    .attr("d", covidDeathsLine)
+            var lineTwo = svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "hospitalizedConfirmed")
+
+            var lineThree = svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .append("path")
+                            .datum(filteredData)
+                            .attr("id", "covidDeaths")
+
+            if (redrawLines) {
+                lineOne = lineOne
+                            .transition()
+                            .duration(1000)
+
+                lineTwo = lineTwo
+                            .transition()
+                            .duration(1000)
+
+                lineThree = lineThree
+                            .transition()
+                            .duration(1000)
             }
-            else {
-                // Redraw with transition
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedAll")
-                    .transition()
-                    .duration(1000)
-                    .attr("fill", "none")
-                    .attr("stroke", "orange")
-                    .attr("stroke-width", 2)
-                    // .attr("d", allHospitalizedAdultsLine)
-                    .attr("d", confirmedAdultsLine)
 
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "hospitalizedConfirmed")
-                    .transition()
-                    .duration(1000)
-                    .attr("fill", "none")
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 2)
-                    // .attr("d", confirmedHospitalizedAdultsLine)
-                    .attr("d", confirmedPediatricLine)
+            lineOne
+                .attr("fill", "none")
+                .attr("stroke", "orange")
+                .attr("stroke-width", 2)
+                .attr("d", confirmedAdultsLine)
 
-                svg.append("g")
-                        .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
-                    .append("path")
-                    .datum(filteredData)
-                    .attr("id", "covidDeaths")
-                    .transition()
-                    .duration(1000)
-                    .attr("fill", "none")
-                    .attr("stroke", "purple")
-                    .attr("stroke-width", 2)
-                    // .attr("d", confirmedHospitalizedAdultsLine)
-                    .attr("d", covidDeathsLine)
-            }
+            lineTwo
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 2)
+                .attr("d", confirmedPediatricLine)
+
+            lineThree
+                .attr("fill", "none")
+                .attr("stroke", "purple")
+                .attr("stroke-width", 2)
+                .attr("d", covidDeathsLine)
+            
+                
+            // if (!redrawLines) {
+            //     // Draw first time
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedAll")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "orange")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", confirmedAdultsLine)
+
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedConfirmed")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "red")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", confirmedPediatricLine)
+
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "covidDeaths")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "purple")
+            //         .attr("stroke-width", 2)
+            //         .attr("d", covidDeathsLine)
+            // }
+            // else {
+            //     // Redraw with transition
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedAll")
+            //         .transition()
+            //         .duration(1000)
+            //         .attr("fill", "none")
+            //         .attr("stroke", "orange")
+            //         .attr("stroke-width", 2)
+            //         // .attr("d", allHospitalizedAdultsLine)
+            //         .attr("d", confirmedAdultsLine)
+
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "hospitalizedConfirmed")
+            //         .transition()
+            //         .duration(1000)
+            //         .attr("fill", "none")
+            //         .attr("stroke", "red")
+            //         .attr("stroke-width", 2)
+            //         // .attr("d", confirmedHospitalizedAdultsLine)
+            //         .attr("d", confirmedPediatricLine)
+
+            //     svg.append("g")
+            //             .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+            //         .append("path")
+            //         .datum(filteredData)
+            //         .attr("id", "covidDeaths")
+            //         .transition()
+            //         .duration(1000)
+            //         .attr("fill", "none")
+            //         .attr("stroke", "purple")
+            //         .attr("stroke-width", 2)
+            //         // .attr("d", confirmedHospitalizedAdultsLine)
+            //         .attr("d", covidDeathsLine)
+            // }
 
         }
 
