@@ -305,6 +305,16 @@
                 .duration(100)
                 .remove()
 
+            d3.select("#adultsConfirmed")
+                .transition()
+                .duration(100)
+                .remove()
+            
+            d3.select("#childrenConfirmed")
+                .transition()
+                .duration(100)
+                .remove()
+
             d3.select("#covidDeaths")
                 .remove()
         }
@@ -534,6 +544,22 @@
             return [mouseover, mousemove, mouseout]
         }
 
+        var legends = {
+            "Adult": [
+                    ["Hospitalized Adults for Covid", "orange"],
+                    ["Hospitalized Adults Confirmed Covid", "red"]
+                ],
+            "Pediatric":[                    
+                    ["Hospitalized Children for Covid", "skyblue"],
+                    ["Hospitalized Children Confirmed Covid", "darkblue"]
+                ],
+            "All":[
+                    ["Covid Confirmed Adults", "red"],
+                    ["Covid Confirmed Children", "darkblue"],
+                    ["Total Covid Deaths", "purple"]
+                ]
+        }
+
         function drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines, data, filterAdultOrPediatric) {
 
             let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric)
@@ -573,13 +599,13 @@
 
             lineOne
                 .attr("fill", "none")
-                .attr("stroke", "orange")
+                .attr("stroke", function() { return legends[filterAdultOrPediatric][0][1]; })
                 .attr("stroke-width", 2)
                 .attr("d", allHospitalizedLine)
 
             lineTwo
                 .attr("fill", "none")
-                .attr("stroke", "red")
+                .attr("stroke", function() { return legends[filterAdultOrPediatric][1][1]; })
                 .attr("stroke-width", 2)
                 .attr("d", confirmedHospitalizedLine)
 
@@ -653,19 +679,19 @@
 
             lineOne
                 .attr("fill", "none")
-                .attr("stroke", "orange")
+                .attr("stroke", function() { return legends[filterAdultOrPediatric][0][1]; })
                 .attr("stroke-width", 2)
                 .attr("d", confirmedAdultsLine)
 
             lineTwo
                 .attr("fill", "none")
-                .attr("stroke", "red")
+                .attr("stroke", function() { return legends[filterAdultOrPediatric][1][1]; })
                 .attr("stroke-width", 2)
                 .attr("d", confirmedPediatricLine)
 
             lineThree
                 .attr("fill", "none")
-                .attr("stroke", "purple")
+                .attr("stroke", function() { return legends[filterAdultOrPediatric][2][1]; })
                 .attr("stroke-width", 2)
                 .attr("d", covidDeathsLine)
             
@@ -700,7 +726,7 @@
             // var yMax = 5000
             var selectedData, xCoord, yCoord, 
                 dx = 100, 
-                dy = 40,
+                dy = 10,
                 wrap = 160
             if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
@@ -811,23 +837,23 @@
             d3.select(".legend-rect").remove()
             d3.select(".legend-text").remove()
             
-            var legends
-            if (filterAdultOrPediatric === "Adult")
-                legends = [
-                    ["Hospitalized Adults for Covid", "orange"],
-                    ["Hospitalized Adults Confirmed Covid", "red"]
-                ]
-            else if (filterAdultOrPediatric === "Pediatric")
-                legends = [                    
-                    ["Hospitalized Children for Covid", "skyblue"],
-                    ["Hospitalized Children Confirmed Covid", "darkblue"]
-                ]
-            else if (filterAdultOrPediatric === "All")
-                legends = [
-                    ["Covid Confirmed Adults", "red"],
-                    ["Covid Confirmed Children", "darkblue"],
-                    ["Total Covid Deaths", "purple"]
-                ]
+            var legendsData = legends[filterAdultOrPediatric]
+            // if (filterAdultOrPediatric === "Adult")
+            //     legends = [
+            //         ["Hospitalized Adults for Covid", "orange"],
+            //         ["Hospitalized Adults Confirmed Covid", "red"]
+            //     ]
+            // else if (filterAdultOrPediatric === "Pediatric")
+            //     legends = [                    
+            //         ["Hospitalized Children for Covid", "skyblue"],
+            //         ["Hospitalized Children Confirmed Covid", "darkblue"]
+            //     ]
+            // else if (filterAdultOrPediatric === "All")
+            //     legends = [
+            //         ["Covid Confirmed Adults", "red"],
+            //         ["Covid Confirmed Children", "darkblue"],
+            //         ["Total Covid Deaths", "purple"]
+            //     ]
 
             // console.log(legends)
             // var legend = svg.append("g")
@@ -841,27 +867,27 @@
               
             legend
                 .selectAll("rect")
-                .data(legends)
+                .data(legendsData)
                 .enter()
                 .append("rect")
-                    .data(legends)
+                    // .data(legends)
                     .attr("x", (width - margin.left - 5*margin.right - 40))
                     .attr("y", function(d, i) { return (i*20 - 20); })
                     .attr("width", 10)
                     .attr("height", 10)
                     .attr("class", "legend-rect")
-                    .style("fill", function(d, i) { return legends[i][1]; })
+                    .style("fill", function(d, i) { return legendsData[i][1]; })
 
             
             legend
                 .selectAll("text")
-                .data(legends)
+                .data(legendsData)
                 .enter()
                 .append("text")
                     .attr("x", (width - margin.left - 5*margin.right - 26))
                     .attr("y", function(d, i) { return (i*20 - 10); })
                     .attr("class", "legend-text")
-                    .text(function(d, i) { return legends[i][0]; })
+                    .text(function(d, i) { return legendsData[i][0]; })
         }
 
         async function init() {
