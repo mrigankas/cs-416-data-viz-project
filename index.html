@@ -758,14 +758,9 @@
             // ============ Draw the Scene ===================
             function drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState, redrawLines) {
 
-                // var buttonId = "#"+selectedSlideNum
-                // d3.select(buttonId)
-                //     .style("background-color", "blue")
                 var buttons = d3.selectAll(".nav-button")
                 var elems = buttons.nodes()
                 for (var elem of elems) {
-                    // alert(elem.id)
-
                     if (elem.id === "< Prev") {
                         if (selectedSlideNum === "1") {
                             elem.style.opacity = 0.6;
@@ -796,14 +791,9 @@
                     }
                      
                 }
-                // d3.select("#1")
-                //     .style("background-color", "lightgray")
 
                 if (selectedSlideNum === "1") {
                     filterAdultOrPediatric = "Adult"
-                    // d3.selectAll(".nav-button")
-                    //     .select("#1")
-                    //     .style("background-color", "darkgray")
                 }
                 else if (selectedSlideNum === "2") {
                     filterAdultOrPediatric = "Pediatric"
@@ -892,25 +882,12 @@
 
                     if (selectedSlideNum === "Next >" && currentSelectedButton !== "3") {
                         selectedSlideNum = (parseInt(currentSelectedButton) + 1).toString()
-                        alert(selectedSlideNum)
-                        // elem.style.opacity = 1;
-                        // elem.style.cursor = "allowed";
-                        // elem.disabled = false;
                     }
                     else if (selectedSlideNum === "< Prev" && currentSelectedButton !== "1") {
                         selectedSlideNum = (parseInt(currentSelectedButton) - 1).toString()
-                        alert(selectedSlideNum)
-                        // elem.style.opacity = 1;
-                        // elem.style.cursor = "allowed";
-                        // elem.disabled = false;
                     }
                     
                     selectedState = d3.select("#states").property("value")
-                    // alert(selectedSlideNum)
-                    // d3.select(this)
-                    // thisButton
-                    //     .style("background-color", "black")
-                    //     .style("color", "white")
                     redrawLines = true
                     drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState, redrawLines)
                 })
