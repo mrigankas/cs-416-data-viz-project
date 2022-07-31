@@ -317,7 +317,7 @@
                                     .style("padding", "5px")
                                     .style("position", "fixed")
 
-        function setupMouseOver(data, filteredData, filterAdultOrPediatric) {
+        function setupMouseOver(filteredData, filterAdultOrPediatric) {
             // alert("filterAdultOrPediatric " + filterAdultOrPediatric)
             var parseTime = d3.timeParse("%Y/%m/%d")
             var bisect = d3.bisector(function(d) { return parseTime(d.date); }).left;
@@ -383,56 +383,136 @@
                                 // var avgScaledY = (height - yScale((selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid)) + 
                                 // height - yScale((selectedData.total_adult_patients_hospitalized_confirmed_covid)))/2
                                 // console.log(yScale(parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid)))
-                                var pctConfirmed = (parseInt(selectedData.total_adult_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))*100
-                                var yCoord = height - margin.top - margin.bottom
-                                var yLineOne = yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid)
-                                var yLineTwo = yScale(selectedData.total_adult_patients_hospitalized_confirmed_covid)
-                                var diffOne = Math.abs(mouse[1] - yLineOne)
-                                var diffTwo = Math.abs(mouse[1] - yLineTwo)
-                                if (diffOne < diffTwo)
-                                    yCoord = yLineOne
-                                else
-                                    yCoord = yLineTwo
-                                    
-                                focus
-                                    // .attr("cx", xScale(parseTime(selectedData.date)))
-                                    // .attr("cy", (height - margin/2 - yScale((selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))))
-                                    // .attr("cy", avgScaledY)
-                                    .attr("cx", mouse[0])
-                                    // .attr("cy", mouse[1])
-                                    // .attr("cy", yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))
-                                    .attr("cy", yCoord)
-                                
-                                // alert(selectedData.date)
-                                // var avgY = ((height - selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid) + (height - selectedData.total_adult_patients_hospitalized_confirmed_covid))/2
-                                // focusText
-                                //     // .html("y: " + parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))
-                                //     .html("y: " + mouse[1])
-                                //     // .html("y: " + avgY)
-                                //     // .attr("x", (xScale(parseTime(selectedData.date))+15))
-                                //     // .attr("y", (height - margin/2 - yScale((selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))))
-                                //     .attr("x", mouse[0])
-                                //     // .attr("y", mouse[1])
-                                //     // .attr("y", yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))
-                                //     .attr("y", yCoord)
 
-                                toolTip
-                                    .html("<table>" +
-                                            "<tr>" +
-                                                "<th align='left'>Date</th>" + "<td>:&nbsp;" + selectedData.date + "</td>" +
-                                            "</tr>" +
-                                            "<tr>" +
-                                                "<th align='left'>Hospitalized</th>" + "<td>:&nbsp;" + selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid + "</td>" +
-                                            "</tr>" +
-                                            "<tr>" +
-                                                "<th align='left'>Confirmed</th>" + "<td>:&nbsp;" + selectedData.total_adult_patients_hospitalized_confirmed_covid + "</td>" +
-                                            "</tr>" +
-                                            "<tr>" +
-                                                "<th align='left'>% Confirmed</th>" + "<td>:&nbsp;" + Math.round(pctConfirmed) + "%</td>" +
-                                            "</tr>" +
-                                        "</table>")
-                                    .style("left", (mouse[0]+80))
-                                    .style("top", (yCoord+80))
+                                if (filterAdultOrPediatric === "Adult") {
+                                    var pctConfirmed = (parseInt(selectedData.total_adult_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))*100
+                                    var yCoord = height - margin.top - margin.bottom
+                                    var yLineOne = yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid)
+                                    var yLineTwo = yScale(selectedData.total_adult_patients_hospitalized_confirmed_covid)
+                                    var diffOne = Math.abs(mouse[1] - yLineOne)
+                                    var diffTwo = Math.abs(mouse[1] - yLineTwo)
+                                    if (diffOne < diffTwo)
+                                        yCoord = yLineOne
+                                    else
+                                        yCoord = yLineTwo
+                                        
+                                    focus
+                                        // .attr("cx", xScale(parseTime(selectedData.date)))
+                                        // .attr("cy", (height - margin/2 - yScale((selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))))
+                                        // .attr("cy", avgScaledY)
+                                        .attr("cx", mouse[0])
+                                        // .attr("cy", mouse[1])
+                                        // .attr("cy", yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))
+                                        .attr("cy", yCoord)
+                                    
+                                    // alert(selectedData.date)
+                                    // var avgY = ((height - selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid) + (height - selectedData.total_adult_patients_hospitalized_confirmed_covid))/2
+                                    // focusText
+                                    //     // .html("y: " + parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))
+                                    //     .html("y: " + mouse[1])
+                                    //     // .html("y: " + avgY)
+                                    //     // .attr("x", (xScale(parseTime(selectedData.date))+15))
+                                    //     // .attr("y", (height - margin/2 - yScale((selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))))
+                                    //     .attr("x", mouse[0])
+                                    //     // .attr("y", mouse[1])
+                                    //     // .attr("y", yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))
+                                    //     .attr("y", yCoord)
+
+                                    toolTip
+                                        .html("<table>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Date</th>" + "<td>:&nbsp;" + selectedData.date + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Hospitalized</th>" + "<td>:&nbsp;" + selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Confirmed</th>" + "<td>:&nbsp;" + selectedData.total_adult_patients_hospitalized_confirmed_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>% Confirmed</th>" + "<td>:&nbsp;" + Math.round(pctConfirmed) + "%</td>" +
+                                                "</tr>" +
+                                            "</table>")
+                                        .style("left", (mouse[0]+80))
+                                        .style("top", (yCoord+80))
+                                }
+                                else if (filterAdultOrPediatric === "Pediatric") {
+                                    var pctConfirmed = (parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid))*100
+                                    var yCoord = height - margin.top - margin.bottom
+                                    var yLineOne = yScale(selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid)
+                                    var yLineTwo = yScale(selectedData.total_pediatric_patients_hospitalized_confirmed_covid)
+                                    var diffOne = Math.abs(mouse[1] - yLineOne)
+                                    var diffTwo = Math.abs(mouse[1] - yLineTwo)
+                                    if (diffOne < diffTwo)
+                                        yCoord = yLineOne
+                                    else
+                                        yCoord = yLineTwo
+                                        
+                                    focus
+                                        .attr("cx", mouse[0])
+                                        .attr("cy", yCoord)
+                                    
+                                    toolTip
+                                        .html("<table>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Date</th>" + "<td>:&nbsp;" + selectedData.date + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Hospitalized</th>" + "<td>:&nbsp;" + selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Confirmed</th>" + "<td>:&nbsp;" + selectedData.total_pediatric_patients_hospitalized_confirmed_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>% Confirmed</th>" + "<td>:&nbsp;" + Math.round(pctConfirmed) + "%</td>" +
+                                                "</tr>" +
+                                            "</table>")
+                                        .style("left", (mouse[0]+80))
+                                        .style("top", (yCoord+80))
+                                }
+                                else if (filterAdultOrPediatric === "All") {
+                                    var totalConfirmed = parseInt(selectedData.total_adult_patients_hospitalized_confirmed_covid) +
+                                                         parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_covid)
+                                    var pctDeaths = (parseInt(selectedData.deaths_covid)/totalConfirmed)*100
+                                    var yCoord = height - margin.top - margin.bottom
+                                    var yLineOne = yScale(selectedData.total_adult_patients_hospitalized_confirmed_covid)
+                                    var yLineTwo = yScale(selectedData.total_pediatric_patients_hospitalized_confirmed_covid)
+                                    var yLineThree = yScale(selectedData.deaths_covid)
+                                    var diffOne = Math.abs(mouse[1] - yLineOne)
+                                    var diffTwo = Math.abs(mouse[1] - yLineTwo)
+                                    var diffThree = Math.abs(mouse[1] - yLineThree)
+                                    if (diffOne < diffTwo)
+                                        yCoord = yLineOne
+                                    else if (diffThree < diffTwo)
+                                        yCoord = yLineThree
+                                    else
+                                        yCoord = yLineTwo
+                                        
+                                    focus
+                                        .attr("cx", mouse[0])
+                                        .attr("cy", yCoord)
+                                    
+                                    toolTip
+                                        .html("<table>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Date</th>" + "<td>:&nbsp;" + selectedData.date + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Confirmed Adults</th>" + "<td>:&nbsp;" + selectedData.total_adult_patients_hospitalized_confirmed_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Confirmed Children</th>" + "<td>:&nbsp;" + selectedData.total_pediatric_patients_hospitalized_confirmed_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>Total Deaths</th>" + "<td>:&nbsp;" + selectedData.deaths_covid + "</td>" +
+                                                "</tr>" +
+                                                "<tr>" +
+                                                    "<th align='left'>% Deaths</th>" + "<td>:&nbsp;" + Math.round(pctDeaths) + "%</td>" +
+                                                "</tr>" +
+                                            "</table>")
+                                        .style("left", (mouse[0]+80))
+                                        .style("top", (yCoord+80))
+                                }
                             }
 
             var mouseout = function mouseout() {
@@ -446,9 +526,9 @@
 
         function drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines, data, filterAdultOrPediatric) {
 
-            let mouseEffects = setupMouseOver(data, filteredData, filterAdultOrPediatric)
-
             let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric)
+
+            let mouseEffects = setupMouseOver(filteredData, filterAdultOrPediatric)
 
             var mouseover = mouseEffects[0],
                 mousemove = mouseEffects[1],
@@ -520,6 +600,12 @@
 
             let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric)
 
+            let mouseEffects = setupMouseOver(filteredData, filterAdultOrPediatric)
+
+            var mouseover = mouseEffects[0],
+                mousemove = mouseEffects[1],
+                mouseout  = mouseEffects[2]
+
             // var lineOne = svg.append("g")
             //                     .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
             var lineOne = svg
@@ -573,7 +659,21 @@
                 .attr("stroke-width", 2)
                 .attr("d", covidDeathsLine)
             
+            svg
+                .append("rect")
+                .attr("id", "mouse-effect")
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .attr("width", width)
+                .attr("height", height)
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseout", mouseout)
 
+            svg
+                .append("g")
+                    .attr("class", "annotation-group")
+                    .call(makeAnnotations)
 
         }
 
@@ -590,7 +690,8 @@
             // var yMax = 5000
             var selectedData, xCoord, yCoord, 
                 dx = 100, 
-                dy = 40
+                dy = 40,
+                wrap = 150
             if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
                 yMax = d3.max(hospAdults)
@@ -626,12 +727,13 @@
                 })
                 // alert(selectedData)
                 xCoord = (xScale(selectedData.date))
-                xCoord = 700
+                xCoord = 900
                 console.log(xCoord)
-                // yCoord = svgHeight - 50
-                yCoord = 200
-                dx = 100
-                dy = 50
+                yCoord = svgHeight
+                // yCoord = 200
+                dx = -80
+                dy = -200
+                wrap = 180
             }
 
             // var selectedData = filteredData.find(function(d) { 
@@ -664,14 +766,14 @@
             }
 
             if (filterAdultOrPediatric === "All")
-                annotationLabel = "Total deaths significantly low compared to the infections among adult and children"
+                annotationLabel = "Total deaths significantly low compared to the total infections among adult and children"
             else
                 annotationLabel = "Peak hospitalizations caused by the " + variantFound + " variant of Covid"
             var annotations = [
                 {
                     note: {
                         label: annotationLabel,
-                        wrap: 150,
+                        wrap: wrap,
                         align: "left"
                     },
                     connector: {
