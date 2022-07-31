@@ -6,11 +6,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Narrative Visualization of US COVID Data</title>
+    <style>
+        .nav-button {
+            background-color: lightgray;
+            color: black;
+            padding: 6px 12px;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+            opacity: 1;
+            /* cursor: allowed; */
+        }
+
+    </style>
 </head>
 <body onload="init()">
-    <h1>Narrative Visualization</h1>
-    <p>Under construction ...</p>
+    <h1 align="left">Narrative Visualization of US Statewise COVID Data</h1>
+    <!-- <p>Under construction ...</p> -->
     <div>
         <div id="navigation"></div>
         <p id="space1"></p>
@@ -127,6 +138,7 @@
                 .append("button")
                 .text(function(d) { return d; })
                 .attr("id", function(d) { return d; })
+                .attr("class", "nav-button")
         }
 
         function drawStateDropDown(selectedState) {
@@ -746,8 +758,52 @@
             // ============ Draw the Scene ===================
             function drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState, redrawLines) {
 
+                // var buttonId = "#"+selectedSlideNum
+                // d3.select(buttonId)
+                //     .style("background-color", "blue")
+                var buttons = d3.selectAll(".nav-button")
+                var elems = buttons.nodes()
+                for (var elem of elems) {
+                    // alert(elem.id)
+
+                    if (elem.id === "< Prev") {
+                        if (selectedSlideNum === "1") {
+                            elem.style.opacity = 0.6;
+                            // elem.style.cursor = "not-allowed";
+                            elem.disabled = true;
+                        }
+                        else {
+                            elem.style.opacity = 1;
+                            // elem.style.cursor = "allowed";
+                            elem.disabled = false;
+                        }
+                    }
+                    else if (elem.id === "Next >") {
+                        if (selectedSlideNum === "3") {
+                            elem.style.opacity = 0.6;
+                            // elem.style.cursor = "not-allowed";
+                            elem.disabled = true;
+                        }
+                        else {
+                            elem.style.opacity = 1;
+                            // elem.style.cursor = "allowed";
+                            elem.disabled = false;
+                        }
+                    }
+                    else if (elem.id === selectedSlideNum) {                    
+                        elem.style.backgroundColor = "black";
+                        elem.style.color = "white";
+                    }
+                     
+                }
+                // d3.select("#1")
+                //     .style("background-color", "lightgray")
+
                 if (selectedSlideNum === "1") {
                     filterAdultOrPediatric = "Adult"
+                    // d3.selectAll(".nav-button")
+                    //     .select("#1")
+                    //     .style("background-color", "darkgray")
                 }
                 else if (selectedSlideNum === "2") {
                     filterAdultOrPediatric = "Pediatric"
@@ -824,9 +880,37 @@
             // Change of variable 'selectedSlideNum' should trigger drawing the scene for that 'selectedSlideNum'
             d3.selectAll("button")
                 .on("click", function(d) {
-                    selectedSlideNum = d3.select(this).property("id")
+                    d3.selectAll(".nav-button")
+                        .style("background-color", "lightgray")
+                        .style("color", "black")
+                        .style("opacity", 1)
+                        .style("cursor", "allowed")
+
+                    var currentSelectedButton = selectedSlideNum
+                    var thisButton = d3.select(this)
+                    selectedSlideNum = thisButton.property("id")
+
+                    if (selectedSlideNum === "Next >" && currentSelectedButton !== "3") {
+                        selectedSlideNum = (parseInt(currentSelectedButton) + 1).toString()
+                        alert(selectedSlideNum)
+                        // elem.style.opacity = 1;
+                        // elem.style.cursor = "allowed";
+                        // elem.disabled = false;
+                    }
+                    else if (selectedSlideNum === "< Prev" && currentSelectedButton !== "1") {
+                        selectedSlideNum = (parseInt(currentSelectedButton) - 1).toString()
+                        alert(selectedSlideNum)
+                        // elem.style.opacity = 1;
+                        // elem.style.cursor = "allowed";
+                        // elem.disabled = false;
+                    }
+                    
                     selectedState = d3.select("#states").property("value")
                     // alert(selectedSlideNum)
+                    // d3.select(this)
+                    // thisButton
+                    //     .style("background-color", "black")
+                    //     .style("color", "white")
                     redrawLines = true
                     drawScene(data, selectedSlideNum, filterAdultOrPediatric, selectedState, redrawLines)
                 })
