@@ -765,10 +765,11 @@
                 }
             }
 
+            var adultOrChildren = (filterAdultOrPediatric === "Pediatric") ? "children" : "adults"
             if (filterAdultOrPediatric === "All")
                 annotationLabel = "Total deaths significantly low compared to the total infections among adult and children"
             else
-                annotationLabel = "Peak hospitalizations caused by the " + variantFound + " variant of Covid"
+                annotationLabel = "Peak hospitalizations among " + adultOrChildren + " caused by the " + variantFound + " variant of Covid"
             var annotations = [
                 {
                     note: {
