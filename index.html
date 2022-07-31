@@ -114,6 +114,64 @@
                         .attr("transform", "translate("+ margin.left +","+ margin.top +")")
                     //     .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
         
+        function wrapText(text, width) {
+            // Borrowed from Stackoverflow post https://stackoverflow.com/questions/24784302/wrapping-text-in-d3
+            text.each(function () {
+                var text = d3.select(this),
+                    words = text.text().split(/\s+/).reverse(),
+                    word,
+                    line = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    x = text.attr("x"),
+                    y = text.attr("y"),
+                    dy = 0, //parseFloat(text.attr("dy")),
+                    tspan = text.text(null)
+                                .append("tspan")
+                                .attr("x", x)
+                                .attr("y", y)
+                                .attr("dy", dy + "em");
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan")
+                                    .attr("x", x)
+                                    .attr("y", y)
+                                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                    .text(word);
+                    }
+                }
+            });
+        }
+
+        function drawNarrationBox(content) {
+            d3.select(".narration-box").remove()
+
+            var box = d3.select("svg")
+                            .append("g")
+                            .attr("class", "narration-box")
+            
+            // box
+            //     .append("rect")
+            //     .attr("width", margin.left - 80)
+            //     .attr("height", 300)
+            //     .attr("x", 0)
+            //     .attr("y", margin.top)
+            //     .attr("opacity", 0)
+            //     .style("background-color", "lightgray")
+                
+            box.append("text")
+                .attr("x", 5)
+                .attr("y", margin.top + 25)
+                // .style("font-size", "24px")
+                // .style("fill", "white")
+                .text(content)
+                .call(wrapText, margin.left - 80)
+        }
 
         function drawTitle(selectedState, filterAdultOrPediatric) {
             d3.select("#chartTitle").remove()
@@ -570,6 +628,22 @@
                 mousemove = mouseEffects[1],
                 mouseout  = mouseEffects[2]
             
+            var content 
+            if (filterAdultOrPediatric == "Adult")
+                content = "Hospitalization among adults peaked at a few different times during the past two years. " +
+                          "The hospitalization trend has been consistent across almost all the US states. " +
+                          "The hospitalization peaks were mostly caused by one of the three variants - Alpha, Delta, Omicron. " +
+                          "Another trend also observed is that the confirmed cases among all the hospitalized adults has been about 90% in most cases." +
+                          "That indicates that about 90% of the adults who got hospitalized were infected with COVID."
+            else if (filterAdultOrPediatric == "Pediatric")
+                content = "Hospitalization among children were much lesser than adults. " +
+                          "Children hospitalizations also peaked at the same timeframes caused by the variants - Alpha, Delta, Omicron. " +
+                          "Although children's peaks didn't necessarily follow the trend of the adults. " +
+                          "In most of the states, children hospitalization peaked due to Omicron. " +
+                          "Also, the percentage of confirmed cases among the hospitalized children were not very high in almost all states. " +
+                          "Barring a few states, children confirmed percentages were mostly around 50-60% of the hospitalized cases. "
+
+            drawNarrationBox(content)            
 
             // var lineOne = svg.append("g")
             //                     .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
@@ -641,6 +715,11 @@
             var mouseover = mouseEffects[0],
                 mousemove = mouseEffects[1],
                 mouseout  = mouseEffects[2]
+
+            var content = "Finally, comparison of the confirmed cases among adults and children and the total death cases shows that " +
+                          "the percentage of children infected was lot lesser than the percentage of adults infected. " +
+                          "Also, the total fatality percentage has been about or less than 3% of the total confirmed COVID cases. "
+            drawNarrationBox(content) 
 
             // var lineOne = svg.append("g")
             //                     .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
@@ -897,6 +976,8 @@
             var filterAdultOrPediatric = "Adult";
 
             var redrawLines = false;
+
+            // drawNarrationBox()
 
             // ============= Draw the Slide Navigation Buttons =============
             drawNavigation()
