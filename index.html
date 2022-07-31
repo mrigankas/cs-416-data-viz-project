@@ -626,6 +626,50 @@
             return makeAnnotations
         }
 
+        function drawLegends(filterAdultOrPediatric) {
+            d3.selectAll(".legend").remove()
+
+            var legends = []
+            if (filterAdultOrPediatric === "Adult")
+                legends = [
+                    ["Hospitalized Adults", "orange"],
+                    ["Covid Confirmed Adults", "red"]
+                ]
+            else if (filterAdultOrPediatric === "Pediatric")
+                legends = [                    
+                    ["Hospitalized Children", "skyblue"],
+                    ["Covid Confirmed Children", "darkblue"]
+                ]
+            else if (filterAdultOrPediatric === "All")
+                legends = [
+                    ["Covid Confirmed Adults", "red"],
+                    ["Covid Confirmed Children", "darkblue"],
+                    ["Total Covid Deaths", "purple"]
+                ]
+
+            console.log(legends)
+            var legend = svg.append("g")
+                                .attr("transform", "translate("+ margin/2 +","+ margin/2 +")")
+                            .selectAll("g")
+                            .data(legends)
+                            .enter()
+                            .append("g")
+                            .attr("class", "legend")
+
+            legend.append("rect")
+                    .data(legends)
+                    .attr("x", (width - 2*margin - 40))
+                    .attr("y", function(d, i) { return i*20; })
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .style("fill", function(d, i) { return legends[i][1]; })
+
+            legend.append("text")
+                    .attr("x", (width - 2*margin - 28))
+                    .attr("y", function(d, i) { return (i*20 + 9); })
+                    .text(function(d, i) { return legends[i][0]; })
+        }
+
         async function init() {
 
             var selectedState = "CA" //stateList[0][1];
@@ -656,7 +700,9 @@
                 else if (selectedSlideNum === "3") {
                     filterAdultOrPediatric = "All"
                 }
-                
+
+                drawLegends(filterAdultOrPediatric)
+
                 //  ======== Draw the x axis ======== 
                 // var xScale = getXScale(data)
                 var filteredData = data.filter(function(d) { return d.state === selectedState; })
