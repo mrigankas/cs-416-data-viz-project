@@ -17,6 +17,16 @@
             /* cursor: allowed; */
         }
 
+        .drop-down {
+            border: 2px solid black;
+            padding: 4px 8px;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+        }
+
+        .label {
+            padding: 4px 2px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body onload="init()">
@@ -25,8 +35,8 @@
     <div>
         <div id="navigation"></div>
         <p id="space1"></p>
-        <label for="states">Select a State:</label>
-        <select></select>
+        <label for="states"><text class="label"><b>Select a State:</b></text></label>
+        <select class="drop-down"></select>
     </div>
     <!-- <svg width="800" height="800"></svg> -->
     <svg></svg>
