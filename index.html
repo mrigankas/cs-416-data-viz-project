@@ -618,9 +618,9 @@
                 ]
         }
 
-        function drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines, data, filterAdultOrPediatric) {
+        function drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines, data, filterAdultOrPediatric, selectedState) {
 
-            let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric)
+            let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric, selectedState)
 
             let mouseEffects = setupMouseOver(filteredData, filterAdultOrPediatric)
 
@@ -640,8 +640,8 @@
                           "Children hospitalizations also peaked at the same timeframes as the adult peaks caused by the variants - Alpha, Delta, Omicron. " +
                           "Although, children's peaks didn't necessarily follow the trend of the adults. " +
                           "In most of the states, children hospitalization peaked due to Omicron. " +
-                          "Also, the percentage of confirmed cases among the hospitalized children were not very high in almost all states. " +
-                          "Barring a few states, children confirmed percentages were mostly around 50-60% of the hospitalized cases. "
+                          "Also, the percentage of confirmed cases among the hospitalized children were not very high in almost all states, " +
+                          "and were anywhere between 0-100% of the hospitalized cases with very few states touching higher than 70%. "
 
             drawNarrationBox(content)            
 
@@ -706,9 +706,9 @@
 
         }
 
-        function drawSummaryLines(filteredData, confirmedAdultsLine, confirmedPediatricLine, covidDeathsLine, redrawLines, filterAdultOrPediatric) {
+        function drawSummaryLines(filteredData, confirmedAdultsLine, confirmedPediatricLine, covidDeathsLine, redrawLines, filterAdultOrPediatric, selectedState) {
 
-            let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric)
+            let makeAnnotations = setupAnnotations(filteredData, filterAdultOrPediatric, selectedState)
 
             let mouseEffects = setupMouseOver(filteredData, filterAdultOrPediatric)
 
@@ -792,7 +792,7 @@
 
         }
 
-        function setupAnnotations(filteredData, filterAdultOrPediatric) {
+        function setupAnnotations(filteredData, filterAdultOrPediatric, selectedState) {
             // alert(filterAdultOrPediatric)
             d3.select(".annotation-group").remove()
 
@@ -806,7 +806,8 @@
             var selectedData, xCoord, yCoord, 
                 dx = 100, 
                 dy = 10,
-                wrap = 160
+                wrap = 190,
+                pctConfirmed
             if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
                 yMax = d3.max(hospAdults)
@@ -815,6 +816,7 @@
                 })
                 xCoord = xScale(parseTime(selectedData.date))
                 yCoord = yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid)
+                pctConfirmed = (parseInt(selectedData.total_adult_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))*100
             }
             else if (filterAdultOrPediatric === "Pediatric") {
                 var hospPediatrics = filteredData.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid); })
@@ -824,6 +826,7 @@
                 })
                 xCoord = xScale(parseTime(selectedData.date))
                 yCoord = yScale(selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid)
+                pctConfirmed = (parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid))*100
             }
             else if (filterAdultOrPediatric === "All") {
                 // var confAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
@@ -884,7 +887,8 @@
             if (filterAdultOrPediatric === "All")
                 annotationLabel = "Total deaths significantly low compared to the total infections among adult and children"
             else
-                annotationLabel = "Peak hospitalizations among " + adultOrChildren + " caused by the " + variantFound + " variant of Covid"
+                annotationLabel = "Peak hospitalizations among " + adultOrChildren + " in " + selectedState + " caused by the " + variantFound + " variant of Covid. " +
+                                  "Percentage confirmed among hospitalized " + adultOrChildren + " is: " + Math.round(pctConfirmed) + "%." 
             var annotations = [
                 {
                     note: {
@@ -1078,10 +1082,10 @@
                     var covidDeathsLine = getCovidDeathLine(filterAdultOrPediatric, xScale, data, selectedState)
 
                     if (filterAdultOrPediatric !== "All")
-                        drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines, data, filterAdultOrPediatric)
+                        drawAdultOrPediatricLines(filteredData, allHospitalizedLine, confirmedHospitalizedLine, redrawLines, data, filterAdultOrPediatric, selectedState)
                         // drawAdultOrPediatricLines(data, selectedState, allHospitalizedLine, confirmedHospitalizedLine, redrawLines)
                     else
-                        drawSummaryLines(filteredData, confirmedAdultsLine, confirmedPediatricLine, covidDeathsLine, redrawLines, filterAdultOrPediatric)
+                        drawSummaryLines(filteredData, confirmedAdultsLine, confirmedPediatricLine, covidDeathsLine, redrawLines, filterAdultOrPediatric, selectedState)
                     
                 }
 
