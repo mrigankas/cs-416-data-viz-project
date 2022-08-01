@@ -806,7 +806,8 @@
             var selectedData, xCoord, yCoord, 
                 dx = 100, 
                 dy = 10,
-                wrap = 160
+                wrap = 190,
+                pctConfirmed
             if (filterAdultOrPediatric === "Adult") {
                 var hospAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_and_suspected_covid); })
                 yMax = d3.max(hospAdults)
@@ -815,6 +816,7 @@
                 })
                 xCoord = xScale(parseTime(selectedData.date))
                 yCoord = yScale(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid)
+                pctConfirmed = (parseInt(selectedData.total_adult_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_adult_patients_hospitalized_confirmed_and_suspected_covid))*100
             }
             else if (filterAdultOrPediatric === "Pediatric") {
                 var hospPediatrics = filteredData.map(function(d) { return parseInt(d.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid); })
@@ -824,6 +826,7 @@
                 })
                 xCoord = xScale(parseTime(selectedData.date))
                 yCoord = yScale(selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid)
+                pctConfirmed = (parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_covid)/parseInt(selectedData.total_pediatric_patients_hospitalized_confirmed_and_suspected_covid))*100
             }
             else if (filterAdultOrPediatric === "All") {
                 // var confAdults = filteredData.map(function(d) { return parseInt(d.total_adult_patients_hospitalized_confirmed_covid); })
@@ -884,7 +887,8 @@
             if (filterAdultOrPediatric === "All")
                 annotationLabel = "Total deaths significantly low compared to the total infections among adult and children"
             else
-                annotationLabel = "Peak hospitalizations among " + adultOrChildren + " in " + selectedState + " caused by the " + variantFound + " variant of Covid"
+                annotationLabel = "Peak hospitalizations among " + adultOrChildren + " in " + selectedState + " caused by the " + variantFound + " variant of Covid. " +
+                                  "Percentage confirmed among hospitalized " + adultOrChildren + " is: " + Math.round(pctConfirmed) + "%." 
             var annotations = [
                 {
                     note: {
